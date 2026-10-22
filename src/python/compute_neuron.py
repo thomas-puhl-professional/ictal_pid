@@ -1,5 +1,5 @@
 import brian2 as b2
-from brian2 import mV, mohm, pF, mamp
+from brian2 import mV, mohm, pF, mamp, ms
 import scipy as sp
 
 def computeVoltages(numNeurons, voltages, spikes, leak,
@@ -8,17 +8,17 @@ def computeVoltages(numNeurons, voltages, spikes, leak,
                     t, dt):
     for i in range(0, numNeurons-1):
         if start_stim_step<t<stop_stim_step:
-            dVdt = (currents + ((voltages - leak)/r_excit))/capacitances(1, i) # LIF
-            dVdt = dVdt + ((25 * spikes[:, t]).T)
+            dV = ((currents + ((voltages - leak)/r_excit))/capacitances)*dt # LIF with driving current
+            #dV = (dV + ((25 * spikes[:, t]).T) *mV*ms^(-1)) # synaptic currents! big step!
         else:
-            dVdt = ((voltages - leak) / r_excit) / capacitances  # LIF
-            dVdt = dVdt + ((25 * spikes[:, t]).T)
-        voltages = voltages + ((dVdt)*dt)*mV
+            dV = (((voltages - leak) / (r_excit * capacitances)))*dt  # LIF w/o driving current
+            #dV = (dV + (( * mV * spikes[:, t]).T))
+        voltages = voltages + dV
     return voltages
 
 def getSpikes(voltages, spikes, numNeurons, t):
     for i in range(0, numNeurons-1):
-        if voltages[1, i] > (-55*mV):
-            voltages[1, i+1] = -70*mV
+        if voltages[0, i] > (-55*mV):
+            voltages[0, i+1] = -70*mV
             spikes[i, t] = 1
     return voltages, spikes
