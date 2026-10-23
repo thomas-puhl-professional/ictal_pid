@@ -7,6 +7,11 @@ from brian2 import mV, pF, mohm, second
 import init_neurons
 import init_network
 import compute_neuron
+import my_plot
+
+#debugging code
+
+np.seterr(over="raise", invalid="raise", divide="raise")
 
 t = 0
 T = int(input("Simulated seconds")) * second
@@ -35,10 +40,11 @@ while t < steps:
         r_excit, r_inhib, capacitances,
         currents, start_stim_steps, stop_stim_steps,
         t, dt)
-    voltages, spikes = compute_neuron.getSpikes(voltages, spikes, numNeurons, t)
+    voltages, spikes = compute_neuron.getSpikes(voltages,
+                                                spikes,
+                                                numNeurons, t)
 
-print(spikes)
+# plot the raster plot
 
-# next step is to implement a while loop that updates the
-# neuronal network while within the time constraint
+my_plots.plotRaster(spikes)
 
