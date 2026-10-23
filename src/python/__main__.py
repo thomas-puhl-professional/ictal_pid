@@ -2,15 +2,20 @@ import brian2 as b2
 import numpy as np
 import scipy as sp
 import numpy as np
-from brian2 import mV, pF, mohm
+from brian2 import mV, pF, mohm, second
 
 import init_neurons
 import init_network
 import compute_neuron
+import my_plot
+
+#debugging code
+
+np.seterr(over="raise", invalid="raise", divide="raise")
 
 t = 0
-T = int(input("Simulated seconds"))
-dt = float(input("Discrete timestep value"))
+T = int(input("Simulated seconds")) * second
+dt = float(input("Discrete timestep value (in seconds)")) * second
 steps = int(T/dt)
 
 start_stim_time = float(input("Start stimulus time"))
@@ -35,10 +40,11 @@ while t < steps:
         r_excit, r_inhib, capacitances,
         currents, start_stim_steps, stop_stim_steps,
         t, dt)
-    compute_neuron.getSpikes(voltages, spikes, numNeurons, t)
+    voltages, spikes = compute_neuron.getSpikes(voltages,
+                                                spikes,
+                                                numNeurons, t)
 
-print(spikes)
+# plot the raster plot
 
-# next step is to implement a while loop that updates the
-# neuronal network while within the time constraint
+my_plots.plotRaster(spikes)
 
