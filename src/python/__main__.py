@@ -2,6 +2,7 @@ import brian2 as b2
 import numpy as np
 import scipy as sp
 import numpy as np
+import tqdm
 from brian2 import mV, pF, mohm, second
 
 import init_neurons
@@ -14,7 +15,7 @@ import my_plot
 np.seterr(over="raise", invalid="raise", divide="raise")
 
 t = 0
-T = int(input("Simulated seconds")) * second
+T = float(input("Simulated seconds")) * second
 dt = float(input("Discrete timestep value (in seconds)")) * second
 steps = int(T/dt)
 
@@ -30,21 +31,26 @@ leak = 10.6 * mV # leak currrent
 currents = init_neurons.get_currents(numNeurons)
 weights = init_network.configure_network(numNeurons)
 
-print(f"{voltages},\n {capacitances},\n {r_excit},\n {r_inhib},\n {capacitances}")
+print(f"{voltages},\n {capacitances},\n {r_excit},\n {r_inhib},")
 print(weights)
 
 spikes = np.zeros((numNeurons, steps))
-while t < steps:
-    voltages = compute_neuron.computeVoltages(
-        numNeurons, voltages, spikes, leak,
-        r_excit, r_inhib, capacitances,
-        currents, start_stim_steps, stop_stim_steps,
-        t, dt)
-    voltages, spikes = compute_neuron.getSpikes(voltages,
-                                                spikes,
-                                                numNeurons, t)
+
+
+with tqdm.tqdm(total=steps, desc="Simulating", unit="step"):
+    while t < steps:
+        voltages = compute_neuron.computeVoltages(
+            numNeurons, voltages, spikes, leak,
+            r_excit, r_inhib, capacitances,
+            currents, start_stim_steps, stop_stim_steps,
+            t, dt)
+        voltages, spikes = compute_neuron.getSpikes(voltages,
+                                                    spikes,
+                                                    numNeurons, t)
+        t = t + 1
+
 
 # plot the raster plot
 
-my_plots.plotRaster(spikes)
+my_plot.plotRaster(spikes)
 

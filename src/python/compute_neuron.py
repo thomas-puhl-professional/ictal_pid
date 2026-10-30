@@ -10,14 +10,16 @@ def computeVoltages(numNeurons, voltages, spikes, leak,
         dV = ((currents + ((voltages - leak)/r_excit))/capacitances)*dt # LIF with driving current
         #dV = (dV + ((25 * spikes[:, t]).T) *mV*ms^(-1)) # synaptic currents! big step!
     else:
-        dV = (((leak - voltages) / (r_excit * capacitances)))*dt  # LIF w/o driving current
+        dV = ((leak - voltages) / (r_excit * capacitances))*dt  # LIF w/o driving current
         # dV = (dV + (( * mV * spikes[:, t]).T))
-        voltages = voltages + dV
+    voltages = voltages + dV
     return voltages
 
 def getSpikes(voltages, spikes, numNeurons, t):
-    for i in range(0, numNeurons-1):
+    for i in range(0, numNeurons):
         if voltages[0, i] > (-55*mV):
             voltages[0, i] = -70*mV
             spikes[i, t] = 1
+        elif voltages[0, i] < (-70*mV):
+            voltages[0, i] = -70*mV
     return voltages, spikes
