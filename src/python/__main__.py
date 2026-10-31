@@ -1,5 +1,4 @@
 import brian2 as b2
-import numpy as np
 import scipy as sp
 import numpy as np
 import tqdm
@@ -31,26 +30,25 @@ leak = 10.6 * mV # leak currrent
 currents = init_neurons.get_currents(numNeurons)
 weights = init_network.configure_network(numNeurons)
 
-print(f"{voltages},\n {capacitances},\n {r_excit},\n {r_inhib},")
-print(weights)
+print(f"{voltages},\n {capacitances},\n {r_excit},\n {r_inhib}, "
+      f"\n {currents},\n {weights}")
 
-spikes = np.zeros((numNeurons, steps))
+spikes = np.zeros([numNeurons, steps])
 
 
-with tqdm.tqdm(total=steps, desc="Simulating", unit="step"):
+with tqdm.tqdm(total=steps, desc="Simulating", unit="t"):
     while t < steps:
-        voltages = compute_neuron.computeVoltages(
+       voltages = compute_neuron.computeVoltages(
             numNeurons, voltages, spikes, leak,
             r_excit, r_inhib, capacitances,
             currents, start_stim_steps, stop_stim_steps,
             t, dt)
-        voltages, spikes = compute_neuron.getSpikes(voltages,
+       voltages, spikes = compute_neuron.getSpikes(voltages,
                                                     spikes,
                                                     numNeurons, t)
-        t = t + 1
+       t = t + 1
 
 
 # plot the raster plot
-
-my_plot.plotRaster(spikes)
-
+experiment_name = input("Enter experiment name: ")
+my_plot.plotRaster(spikes, dt, experiment_name)
