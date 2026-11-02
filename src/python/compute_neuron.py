@@ -2,7 +2,7 @@ import brian2 as b2
 from brian2 import mV, mohm, pF, mamp, ms
 import scipy as sp
 
-def computeVoltages(numNeurons, voltages, spikes, leak,
+def computeVoltagesLIF(numNeurons, voltages, spikes, leak,
                     r_excit, r_inhib, capacitances,
                     currents, start_stim_step, stop_stim_step,
                     t, dt):

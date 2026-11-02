@@ -8,6 +8,7 @@ import init_neurons
 import init_network
 import compute_neuron
 import my_plot
+from python import track_voltages
 
 #debugging code
 
@@ -30,15 +31,16 @@ leak = 10.6 * mV # leak currrent
 currents = init_neurons.get_currents(numNeurons)
 weights = init_network.configure_network(numNeurons)
 
+tracked_neurons, num_neurons_tracked = track_voltages.initTrackNeurons(T, dt)
+
 print(f"{voltages},\n {capacitances},\n {r_excit},\n {r_inhib}, "
       f"\n {currents},\n {weights}")
 
 spikes = np.zeros([numNeurons, steps])
 
-
 with tqdm.tqdm(total=steps, desc="Simulating", unit="t"):
     while t < steps:
-       voltages = compute_neuron.computeVoltages(
+       voltages = compute_neuron.computeVoltagesLIF(
             numNeurons, voltages, spikes, leak,
             r_excit, r_inhib, capacitances,
             currents, start_stim_steps, stop_stim_steps,
@@ -46,9 +48,12 @@ with tqdm.tqdm(total=steps, desc="Simulating", unit="t"):
        voltages, spikes = compute_neuron.getSpikes(voltages,
                                                     spikes,
                                                     numNeurons, t)
+       tracked_voltages = track_voltages.trackVoltages(tracked_neurons, voltages,
+                                                      num_neurons_tracked, t)
        t = t + 1
 
 
 # plot the raster plot
 experiment_name = input("Enter experiment name: ")
 my_plot.plotRaster(spikes, dt, experiment_name)
+my_plot.plotV_of_t(tracked_voltages, experiment_name, T, steps, num_neurons_tracked)
